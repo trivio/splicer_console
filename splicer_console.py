@@ -1,6 +1,7 @@
 import os
 from itertools import islice, tee
 
+from splicer.ast import JoinOp, LoadOp
 from texttable import Texttable
 
 
@@ -10,6 +11,40 @@ def init(dataset):
 def take(n, iterable):
   "Return first n items of the iterable as a list"
   return list(islice(iterable, n))
+
+def explain(query_or_op, indent = 0):
+  if hasattr(query_or_op, 'operations'):
+    explain(query_or_op.operations)
+    return
+  
+
+  op = query_or_op
+
+  p = []
+
+  if indent:
+    p.append('+')
+    
+  p.append(("-" * indent) + op.__class__.__name__)
+  p.append("(")
+
+  params = []
+  for name in op.__slots__:
+    if name not in ('left', 'right', 'relation'):
+      params.append("{}={}".format(name, getattr(op, name)))
+  p.append(",".join(params))
+
+  p.append(")")
+
+  print "".join(p)
+
+  if isinstance(op,JoinOp):
+    explain(op.left, indent+1)
+    explain(op.right, indent+1)
+  elif not isinstance(op, LoadOp):
+    explain(op.relation, indent+1)
+
+  
 
 
 def dump(relation):
