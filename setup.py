@@ -13,7 +13,7 @@ except IOError:
 setup(
   name='splicer_console',
 
-  version='0.0.1',
+  version='0.0.2',
   description='Console support for Splicer Apps',
   long_description=README,
   author='Scott Robertson',
